@@ -1,23 +1,24 @@
 package ru.practice.etl.mappers;
 
 import org.springframework.stereotype.Component;
-import ru.practice.etl.dto.CustomerChangeDTO;
+import ru.practice.etl.dto.CustomerDto;
+import ru.practice.etl.utils.SqlUtils;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Map;
 
 @Component
 public class CustomerMapper {
 
-    public CustomerChangeDTO map(Map<String, Object> row) {
-        return new CustomerChangeDTO(
-                ((Number) row.get("id")).longValue(),
-                (String) row.get("name"),
-                (String) row.get("email"),
-                ((Timestamp) row.get("updated_at")).toLocalDateTime(),
-                row.get("deleted_at") != null
-                        ? ((Timestamp) row.get("deleted_at")).toLocalDateTime()
-                        : null
+    public CustomerDto map(ResultSet rs) throws SQLException {
+        return new CustomerDto(
+                SqlUtils.getLong(rs, "id"),
+                SqlUtils.getString(rs, "name"),
+                SqlUtils.getString(rs, "email"),
+                SqlUtils.getLocalDateTime(rs, "updated_at"),
+                SqlUtils.getLocalDateTime(rs, "deleted_at")
         );
     }
 }

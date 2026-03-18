@@ -1,62 +1,51 @@
 package ru.practice.etl.mappers;
 
 import org.springframework.stereotype.Component;
-import ru.practice.etl.dto.OrderChangeDTO;
-import ru.practice.etl.dto.OrderDTO;
+import ru.practice.etl.dto.OrderDto;
+import ru.practice.etl.dto.OrderItemDto;
+import ru.practice.etl.utils.SqlUtils;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class OrderMapper {
 
     private final ObjectMapper objectMapper;
-    private final TypeReference<List<OrderDTO>> itemsType = new TypeReference<>() {};
+    private final TypeReference<List<OrderItemDto>> itemsType = new TypeReference<>() {};
 
     public OrderMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
-    public OrderChangeDTO map(Map<String, Object> row) {
-        try {
-            Long orderId = ((Number) row.get("order_id")).longValue();
-            Long customerId = ((Number) row.get("customer_id")).longValue();
-            String status = (String) row.get("status");
-            LocalDateTime placedAt = parseTimestamp(row.get("placed_at"));
-            LocalDateTime updatedAt = parseTimestamp(row.get("updated_at"));
-            LocalDateTime deletedAt = row.get("deleted_at") != null ? parseTimestamp(row.get("deleted_at")) : null;
-            String customerName = (String) row.get("customer_name");
-            String customerEmail = (String) row.get("customer_email");
-            String itemsJson = (String) row.get("items");
+    public OrderDto map(ResultSet rs) throws SQLException, IOException {
+        Long orderId = SqlUtils.getLong(rs, "order_id");
+        Long customerId = SqlUtils.getLong(rs, "customer_id");
+        String status = SqlUtils.getString(rs, "status");
+        LocalDateTime placedAt = SqlUtils.getLocalDateTime(rs, "placed_at");
+        LocalDateTime updatedAt = SqlUtils.getLocalDateTime(rs, "updated_at");
+        LocalDateTime deletedAt = SqlUtils.getLocalDateTime(rs, "deleted_at");
+        String customerName = SqlUtils.getString(rs, "customer_name");
+        String customerEmail = SqlUtils.getString(rs, "customer_email");
+        String itemsJson = SqlUtils.getString(rs, "items");
 
-            List<OrderDTO> items = objectMapper.readValue(itemsJson, itemsType);
+        List<OrderItemDto> items = objectMapper.readValue(itemsJson, itemsType);
 
-            return new OrderChangeDTO(
-                    orderId,
-                    customerId,
-                    status,
-                    placedAt,
-                    updatedAt,
-                    deletedAt,
-                    customerName,
-                    customerEmail,
-                    items
-            );
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to parse items JSON", e);
-        }
-    }
-
-    private LocalDateTime parseTimestamp(Object obj) {
-        if (obj instanceof java.sql.Timestamp) {
-            return ((java.sql.Timestamp) obj).toLocalDateTime();
-        } else if (obj instanceof String) {
-            return LocalDateTime.parse((String) obj); // если вдруг строка
-        } else {
-            throw new IllegalArgumentException("Unknown timestamp type: " + obj.getClass());
-        }
+        return new OrderDto(
+                orderId,
+                customerId,
+                status,
+                placedAt,
+                updatedAt,
+                deletedAt,
+                customerName,
+                customerEmail,
+                items
+        );
     }
 }

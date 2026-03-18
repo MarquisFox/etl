@@ -2,7 +2,7 @@ package ru.practice.etl.dto;
 
 import java.math.BigDecimal;
 
-public record OrderDTO(
+public record OrderItemDto(
         Long productId,
         String productName,
         BigDecimal productPrice,

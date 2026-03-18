@@ -1,24 +1,25 @@
 package ru.practice.etl.mappers;
 
 import org.springframework.stereotype.Component;
-import ru.practice.etl.dto.ProductChangeDTO;
+import ru.practice.etl.dto.ProductDto;
+import ru.practice.etl.utils.SqlUtils;
 
 import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Map;
 
 @Component
 public class ProductMapper {
 
-    public ProductChangeDTO map(Map<String, Object> row) {
-        return new ProductChangeDTO(
-                ((Number) row.get("id")).longValue(),
-                (String) row.get("name"),
-                (BigDecimal) row.get("price"),
-                ((Timestamp) row.get("updated_at")).toLocalDateTime(),
-                row.get("deleted_at") != null
-                        ? ((Timestamp) row.get("deleted_at")).toLocalDateTime()
-                        : null
+    public ProductDto map(ResultSet rs) throws SQLException {
+        return new ProductDto(
+                SqlUtils.getLong(rs, "id"),
+                SqlUtils.getString(rs, "name"),
+                SqlUtils.getBigDecimal(rs, "price"),
+                SqlUtils.getLocalDateTime(rs, "updated_at"),
+                SqlUtils.getLocalDateTime(rs, "deleted_at")
         );
     }
 }

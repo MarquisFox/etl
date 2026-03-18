@@ -1,0 +1,15 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <include relativeToChangelogFile="true" file="db.18-03-2026-1.create_customers_table.xml"/>
+    <include relativeToChangelogFile="true" file="db.18-03-2026-2.create_orders_table.xml"/>
+    <include relativeToChangelogFile="true" file="db.18-03-2026-3.create_products_table.xml"/>
+    <include relativeToChangelogFile="true" file="db.18-03-2026-4.create_order_items_table.xml"/>
+    <include relativeToChangelogFile="true" file="db.18-03-2026-5.add_deleted_at_columns.xml"/>
+    <include relativeToChangelogFile="true" file="db.18-03-2026-6.create_sync_state_table.xml"/>
+    <include relativeToChangelogFile="true" file="db.18-03-2026-7.create_indexes.xml"/>
+
+</databaseChangeLog>

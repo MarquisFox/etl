@@ -2,21 +2,6 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
-
-    <changeSet id="1" author="marquis">
-        <sqlFile path="create-tables.sql" relativeToChangelogFile="true"/>
-    </changeSet>
-
-    <changeSet id="2" author="marquis">
-        <sqlFile path="add-products-and-order-items.sql" relativeToChangelogFile="true"/>
-    </changeSet>
-
-    <changeSet id="3" author="marquis">
-        <sqlFile path="add-sync-state.sql" relativeToChangelogFile="true"/>
-    </changeSet>
-
-    <changeSet id="4" author="marquis">
-        <sqlFile path="add-deleted-at.sql" relativeToChangelogFile="true"/>
-    </changeSet>
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+    <include relativeToChangelogFile="true" file="2026_03_changelog/changelog.2026.03.xml"/>
 </databaseChangeLog>

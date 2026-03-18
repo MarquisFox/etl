@@ -52,7 +52,6 @@ services:
       APP_GENERATE_TEST_DATA: ${APP_GENERATE_TEST_DATA:-false}
     env_file:
       - .env
-    restart: unless-stopped
     networks:
       - etl_network
 
@@ -62,4 +61,3 @@ volumes:
 
 networks:
   etl_network:
-    driver: bridge

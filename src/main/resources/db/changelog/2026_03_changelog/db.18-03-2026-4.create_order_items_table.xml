@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="create-order-items-table" author="marquis">
+        <createTable tableName="order_items">
+            <column name="order_id" type="INT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_order_items_order"
+                             references="orders(id)"/>
+            </column>
+            <column name="product_id" type="INT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_order_items_product"
+                             references="products(id)"/>
+            </column>
+            <column name="quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="NUMERIC(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="NOW()"/>
+        </createTable>
+        <addPrimaryKey tableName="order_items"
+                       columnNames="order_id, product_id"
+                       constraintName="pk_order_items"/>
+    </changeSet>
+</databaseChangeLog>

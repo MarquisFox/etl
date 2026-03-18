@@ -1,11 +1,12 @@
 package ru.practice.etl.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record CustomerChangeDTO(
+public record ProductDto(
         Long id,
         String name,
-        String email,
+        BigDecimal price,
         LocalDateTime updatedAt,
         LocalDateTime deletedAt
 ) {}
