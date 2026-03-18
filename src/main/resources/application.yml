@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+  data:
+    mongodb:
+      uri: ${MONGO_URI}
+
+sync:
+  cron: ${SYNC_CRON}
+
+logging:
+  level:
+    com.example.etl: INFO
+    org.springframework.jdbc.core: DEBUG

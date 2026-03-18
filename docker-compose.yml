@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: etl_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: shop
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d shop"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - etl_network
+
+  mongodb:
+    image: mongo:6
+    container_name: etl_mongodb
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - etl_network
+
+  etl-app:
+    build: .
+    container_name: etl_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    environment:
+      POSTGRES_URL: ${POSTGRES_URL}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      MONGO_URI: ${MONGO_URI}
+      SYNC_CRON: ${SYNC_CRON}
+      APP_GENERATE_TEST_DATA: ${APP_GENERATE_TEST_DATA:-false}
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - etl_network
+
+volumes:
+  postgres_data:
+  mongo_data:
+
+networks:
+  etl_network:
+    driver: bridge
