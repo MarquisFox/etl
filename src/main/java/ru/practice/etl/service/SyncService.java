@@ -3,9 +3,6 @@ package ru.practice.etl.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import ru.practice.etl.dto.CustomerDto;
-import ru.practice.etl.dto.OrderDto;
-import ru.practice.etl.dto.ProductDto;
 import ru.practice.etl.repository.mongo.CustomerSyncRepository;
 import ru.practice.etl.repository.mongo.OrderSyncRepository;
 import ru.practice.etl.repository.mongo.ProductSyncRepository;
@@ -16,6 +13,8 @@ import ru.practice.etl.repository.postgres.SyncStateRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Service
 public class SyncService {
@@ -50,34 +49,33 @@ public class SyncService {
         LocalDateTime lastSync = syncStateRepo.getLastSyncTime();
         log.info("Starting sync from {}", lastSync);
 
-        long customerOffset = 0;
-        List<CustomerDto> customers;
-        do {
-            customers = customerRepo.findChanges(lastSync, PAGE_SIZE, customerOffset);
-            customerSyncRepo.bulkUpsertCustomers(customers);
-            customerOffset += customers.size();
-            log.debug("Processed {} customers", customerOffset);
-        } while (!customers.isEmpty());
+        syncEntities("customer",
+                offset -> customerRepo.findChanges(lastSync, PAGE_SIZE, offset),
+                customerSyncRepo::bulkUpsertCustomers);
 
-        long orderOffset = 0;
-        List<OrderDto> orders;
-        do {
-            orders = orderRepo.findChanges(lastSync, PAGE_SIZE, orderOffset);
-            orderSyncRepo.bulkUpsertOrders(orders);
-            orderOffset += orders.size();
-            log.debug("Processed {} orders", orderOffset);
-        } while (!orders.isEmpty());
+        syncEntities("order",
+                offset -> orderRepo.findChanges(lastSync, PAGE_SIZE, offset),
+                orderSyncRepo::bulkUpsertOrders);
 
-        long productOffset = 0;
-        List<ProductDto> products;
-        do {
-            products = productRepo.findChanges(lastSync, PAGE_SIZE, productOffset);
-            productSyncRepo.bulkUpsertProducts(products);
-            productOffset += products.size();
-            log.debug("Processed {} products", productOffset);
-        } while (!products.isEmpty());
+        syncEntities("product",
+                offset -> productRepo.findChanges(lastSync, PAGE_SIZE, offset),
+                productSyncRepo::bulkUpsertProducts);
 
         syncStateRepo.updateLastSyncTime(LocalDateTime.now());
         log.info("Sync completed");
+    }
+
+
+    private <T> void syncEntities(String entityName,
+                                  Function<Long, List<T>> pageFetcher,
+                                  Consumer<List<T>> upsertFunction) {
+        long offset = 0;
+        List<T> entities;
+        do {
+            entities = pageFetcher.apply(offset);
+            upsertFunction.accept(entities);
+            offset += entities.size();
+            log.debug("Processed {} {} records", offset, entityName);
+        } while (!entities.isEmpty());
     }
 }
